@@ -3,6 +3,8 @@
 **Author:** Mert Atakan  
 **Status:** Preprint Technical Report (October 2026)  
 **License:** [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
+[![DOI](https://zenodo.org/badge/1431609526.svg)](https://doi.org/10.5281/zenodo.23605859)
+
 
 ---
 
