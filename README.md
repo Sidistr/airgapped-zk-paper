@@ -28,6 +28,17 @@ In this research, we introduce the formal framework for **Air-Gapped Zero-Knowle
 If you reference this work, the threat model, or the AG-ZKP latency equations in your research, please cite:
 
 ```bibtex
+## 📜 Licensing (Dual-License Model)
+
+Arcanum and the AG-ZKP reference implementation are distributed under a **Dual-License** model:
+
+1. **Open-Source License (GNU AGPLv3):** 
+   This software is free and open-source under the terms of the [GNU Affero General Public License v3.0](LICENSE). It is fully compliant with open-source research grants (including NLnet / NGI). If you modify or run this software over a network (e.g., as a cloud/SaaS service or managed proxy), you must make your complete source code available under the AGPLv3.
+
+2. **Commercial Enterprise License:** 
+   For organizations, cloud backup providers, and enterprise custodians that wish to integrate Arcanum / AG-ZKP into proprietary, closed-source software, hardware appliances, or commercial SaaS platforms without the copyleft obligations of the AGPLv3, a separate **Commercial License** is available from Arcanum Research.
+
+For commercial licensing inquiries, enterprise integrations, or partnerships, please contact: **mertatakan53@gmail.com**
 @techreport{atakan2026airgapzk,
   title={Zero-Knowledge Across the Air-Gap: Verifiable Computation and Subliminal-Free Proving with Strictly Offline Private Witnesses},
   author={Atakan, Mert},
