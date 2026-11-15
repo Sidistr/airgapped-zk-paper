@@ -14,13 +14,65 @@
 
 ---
 
-### Abstract
-Zero-Knowledge Proof (ZKP) systems enable a prover to convince a verifier that a statement $x$ is true with respect to a secret witness $w$ without revealing any information about $w$ across the verification channel. However, prevailing ZKP deployments rely on a flawed systemic assumption: that the proving environment itself is free from operating-system compromise or network-level exfiltration. Even in architectures utilizing hardware security modules or cold cryptographic wallets, "split-proving" protocols offload the computationally intensive witness generation and polynomial arithmetic onto a network-connected host, exposing the entirety of $w$ in volatile memory (RAM). Conversely, strictly air-gapped systems—deployed across critical infrastructure, nuclear telemetry, and genomic data cleanrooms—achieve physical confidentiality of $w$ at the cost of external auditability.
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{hyperref}
+\usepackage[margin=1in]{geometry}
 
-In this research, we introduce the formal framework for **Air-Gapped Zero-Knowledge Proving (AG-ZKP)**. We resolve the *Air-Gap Auditability Paradox* by synthesizing physical network isolation with succinct cryptographic verification over constrained, asymmetric physical channels (specifically optical QR fountain streams and unidirectional optical data diodes). Furthermore, we identify and mitigate three fundamental vulnerabilities unique to air-gapped proving:
-1. **The Blinded Witness Synchronization Problem** (mitigated via subtree $k$-anonymity optical ingestion and incremental accumulator folding).
-2. **The Optical Bandwidth vs. Proof Complexity Bottleneck** (formalizing the latency regime shift between Groth16, PLONK, and FRI-based zk-STARKs across optical QR links vs. fiber data diodes).
-3. **Kleptographic Subliminal Channels** (eliminated via strict deterministic witness-bound derandomization and public bridge rerandomization).
+\title{\textbf{AG-ZKP (v1.3): An Air-Gapped Sanitization Architecture and Three-Channel Leakage Model for Untrusted Groth16 Provers and zkML Containers}}
+
+\author{
+  \textbf{Mert Atakan} \\
+  \small Conceptual Framework, Threat Modeling, and System Architecture
+  \and
+  \textbf{Muhammad Zidan Fatonie} \\
+  \small System Architecture and Threat Surface Analysis
+  \and
+  \textbf{Anjul Khatri} \\
+  \small Cryptographic Formalization and Protocol Analysis
+}
+
+\date{November 2026 \\ \small Version 1.3}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Zero-knowledge proof (ZKP) systems guarantee that a verifier learns nothing beyond the validity of a statement, yet standard definitions assume an honest prover that faithfully samples randomness and executes within a benign environment. When high-throughput proof generation---such as zero-knowledge machine learning (zkML) inference---is delegated to untrusted, containerized, or air-gapped third-party provers, a compromised prover or poisoned model weights can exfiltrate sensitive witness data ($w$) without violating completeness or soundness.
+
+In this work, we formalize \textbf{AG-ZKP (v1.3)}, an applied boundary sanitization architecture that adapts the theoretical frameworks of Cryptographic Reverse Firewalls (Mironov \& Stephens-Davidowitz, EUROCRYPT 2015; Ganesh et al., ICALP 2020), Subversion-Resilient ZK (Bellare, Fuchsbauer \& Scafuro, ASIACRYPT 2016; Fuchsbauer, PKC 2018), and Steganography-Free Zero-Knowledge (Abdolmaleki et al., TCC 2022) to non-interactive Groth16 proving pipelines. Rather than claiming a new cryptographic primitive, AG-ZKP introduces a unified \textbf{Three-Channel Leakage Model}
+\[
+\mathcal{L}_{\text{total}} = \mathcal{L}_{\pi} + \mathcal{L}_{\Delta t} + \mathcal{L}_{y}
+\]
+across a unidirectional air-gapped boundary:
+\begin{enumerate}
+    \item \textbf{Algebraic Proof Channel ($\mathcal{L}_{\pi} = 0$):} A stateless boundary sanitizer parses candidate Groth16 proofs into canonical group representations, rejects trailing bytes or malformed encodings, verifies the pairing equation against data-owner-supplied public inputs ($x$), and applies standard $(z, s')$ algebraic rerandomization:
+    \[
+    A' = zA, \quad B' = z^{-1}B + s'[\delta]_2, \quad C' = C + s'A'
+    \]
+    (Baghery et al., FC 2021) using independent hardware entropy ($z \leftarrow \mathbb{F}_r^*, s' \leftarrow \mathbb{F}_r$). This produces a fresh proof distributionally identical to an honest proof without requiring auxiliary prover elements.
+    
+    \item \textbf{Timing and Abort Channel ($\mathcal{L}_{\Delta t} = 0$):} Witness-dependent execution variance (such as MSM and NTT Hamming-weight timing side channels) and selective prover aborts are neutralized via deterministic epoch time-bucketing (Askarov, Zhang \& Myers, CCS 2010) combined with a strict fail-stop container quarantine policy.
+    
+    \item \textbf{Public Output Channel ($\mathcal{L}_{y} \le N \log_2 |\mathcal{Y}|$):} Addressing covert exfiltration through high-precision floating-point output mantissas in untrusted zkML inference, AG-ZKP enforces in-circuit discrete $\operatorname{argmax}$ quantization, strictly bounding cumulative multi-query leakage across $N$ inferences while preserving model commitment integrity.
+\end{enumerate}
+\end{abstract}
+
+\section*{What's New in Version 1.3 (Release Notes)}
+\begin{itemize}
+    \item \textbf{Expanded Literature Grounding:} Added comprehensive citations and comparative positioning covering Cryptographic Reverse Firewalls (Mironov \& Stephens-Davidowitz 2015; Ganesh et al.\ 2020), Subversion-ZK (Bellare et al.\ 2016; Fuchsbauer 2018), Steganography-Free ZK (Abdolmaleki et al.\ 2022), Predictive Timing Mitigation (Askarov et al.\ 2010; Zhang et al.\ 2012), and AI Control containment protocols (Greenblatt et al., ICML 2024; Roger \& Greenblatt 2023).
+    \item \textbf{Standard Groth16 Rerandomization (Proposition 1):} Replaced the auxiliary-element construction with standard $(z, s')$ Groth16 rerandomization (Baghery et al., FC 2021), ensuring compatibility with unmodified off-the-shelf Groth16 provers alongside strict canonical point re-serialization.
+    \item \textbf{Three-Channel Leakage Budget \& Multi-Query Analysis:} Formalized cumulative public output leakage ($\mathcal{L}_{y} \le N \log_2 |\mathcal{Y}|$), explicit data-owner binding for public inputs ($x$), and fail-stop quarantine against invalid-proof/abort signalling.
+    \item \textbf{Asymptotic Complexity \& Scope Refinement:} Replaced unbenchmarked latency estimates with exact algebraic operation counts ($2\text{ }\mathbb{G}_1\text{ scalar multiplications} + 2\text{ }\mathbb{G}_2\text{ scalar multiplications} + 1\text{ pairing verification}$), explicitly scoped out physical hardware emissions (TEMPEST/acoustic channels) and post-quantum security, and included an AI assistance disclosure.
+\end{itemize}
+
+\section*{Keywords}
+\noindent Zero-Knowledge Proofs $\cdot$ Groth16 Rerandomization $\cdot$ Cryptographic Reverse Firewalls $\cdot$ Kleptography and Subliminal Channels $\cdot$ Zero-Knowledge Machine Learning (zkML) $\cdot$ Timing Side-Channel Mitigation $\cdot$ AI Control and Prover Isolation
+
+\end{document}
 
 ---
 
